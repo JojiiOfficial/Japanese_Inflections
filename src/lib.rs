@@ -224,6 +224,26 @@ impl Verb {
         }
     }
 
+    /// Returns the dictionary form of a word
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("ならう", Some("習う")).into_verb(VerbType::Godan).unwrap();
+    /// assert_eq!(verb.dictionary(WordForm::Long).unwrap().kana, String::from("ならいます"));
+    /// assert_eq!(verb.dictionary(WordForm::Long).unwrap().kanji.unwrap(), String::from("習います"));
+    ///
+    /// assert_eq!(verb.dictionary(WordForm::Short).unwrap().kana, String::from("ならう"));
+    /// assert_eq!(verb.dictionary(WordForm::Short).unwrap().kanji.unwrap(), String::from("習う"));
+    /// ```
+    pub fn dictionary(&self, form: WordForm) -> JapaneseResult<Word> {
+        Ok(match form {
+            WordForm::Short => self.word.clone(),
+            WordForm::Long => self.dictionary_polite()?,
+        })
+    }
+
     /// Returns the negative form of a verb
     ///
     /// # Example
@@ -312,6 +332,13 @@ impl Verb {
             WordForm::Short => self.negative_past_short(),
             WordForm::Long => self.negative_past_long(),
         }
+    }
+
+    /// Returns the polite present form of the word
+    fn dictionary_polite(&self) -> JapaneseResult<Word> {
+        let mut stem = self.stem_long()?;
+        stem.push_str("ます");
+        Ok(stem)
     }
 
     /// Returns the verb in the negative short past form
