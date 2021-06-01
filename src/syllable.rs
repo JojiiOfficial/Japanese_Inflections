@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::{alphabet, umlaut::Umlaut};
 
 /// One single syllable within the a kana alphabet
@@ -39,9 +41,21 @@ impl From<char> for Syllable {
     }
 }
 
+impl Into<char> for Syllable {
+    fn into(self) -> char {
+        self.get_char()
+    }
+}
+
 impl From<&str> for Syllable {
     fn from(s: &str) -> Self {
         s.chars().next().unwrap().into()
+    }
+}
+
+impl Display for Syllable {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.get_char())
     }
 }
 
@@ -86,6 +100,32 @@ impl Syllable {
         }
 
         None
+    }
+
+    pub fn to_dakuten(&self) -> Self {
+        match self.get_char() {
+            'た' => Self::from('だ'),
+            'て' => Self::from('で'),
+            'ち' => Self::from('ぢ'),
+            'と' => Self::from('ど'),
+            'つ' => Self::from('づ'),
+            'か' => Self::from('が'),
+            'け' => Self::from('げ'),
+            'き' => Self::from('ぎ'),
+            'こ' => Self::from('ご'),
+            'く' => Self::from('ぐ'),
+            'は' => Self::from('ば'),
+            'へ' => Self::from('べ'),
+            'ひ' => Self::from('び'),
+            'ほ' => Self::from('ぼ'),
+            'ふ' => Self::from('ぶ'),
+            'さ' => Self::from('ざ'),
+            'せ' => Self::from('ぜ'),
+            'し' => Self::from('じ'),
+            'そ' => Self::from('ぞ'),
+            'す' => Self::from('ず'),
+            _ => *self,
+        }
     }
 
     /// Returns the charactor hold by [`self`]

@@ -87,6 +87,42 @@ impl Word {
         Ok(Verb::new(self, verb_type))
     }
 
+    /// Returns true if [`self`] has the passed readings. If kanji is none, but the word has a
+    /// kanji reading the output represents only a kana match
+    pub fn has_reading(&self, kana: &str, kanji: Option<&str>) -> bool {
+        if self.kana == kana {
+            return true;
+        }
+
+        if let Some(ref word_kanji) = self.kanji {
+            if let Some(ref search_kanji) = kanji {
+                if word_kanji == search_kanji {
+                    return true;
+                }
+            }
+        }
+
+        false
+    }
+
+    /// Returns true if the words readings end with the passed strings. If the kanji is none, but
+    /// the word has a kanji reading the output represents only a kana match
+    pub fn ends_with(&self, kana: &str, kanji: Option<&str>) -> bool {
+        if self.kana.ends_with(kana) {
+            return true;
+        }
+
+        if let Some(ref word_kanji) = self.kanji {
+            if let Some(ref search_kanji) = kanji {
+                if word_kanji.ends_with(search_kanji) {
+                    return true;
+                }
+            }
+        }
+
+        false
+    }
+
     /// Returns the last syllable of the word
     fn ending_syllable(&self) -> Option<Syllable> {
         self.kana.chars().last().map(Syllable::from)
@@ -194,20 +230,183 @@ impl Verb {
         }
     }
 
+    /// Returns the verb in its て form.
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("ならう", Some("習う")).into_verb(VerbType::Godan).unwrap();
+    /// assert_eq!(verb.te_form().unwrap().kana, String::from("ならって"));
+    /// assert_eq!(verb.te_form().unwrap().kanji.unwrap(), String::from("習って"));
+    /// ```
+    pub fn te_form(&self) -> JapaneseResult<Word> {
+        self.te_rule(Syllable::from('て'))
+    }
+
+    /// Returns the verb in its negative て form.
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("ならう", Some("習う")).into_verb(VerbType::Godan).unwrap();
+    /// assert_eq!(verb.negative_te_form().unwrap().kana, String::from("ならわなくて"));
+    /// assert_eq!(verb.negative_te_form().unwrap().kanji.unwrap(), String::from("習わなくて"));
+    /// ```
+    pub fn negative_te_form(&self) -> JapaneseResult<Word> {
+        let mut negated_short = self.negative_short()?.strip_end(1);
+        negated_short.push_str("くて");
+        Ok(negated_short)
+    }
+
+    /// Returns the verb in the past form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("ならう", Some("習う")).into_verb(VerbType::Godan).unwrap();
+    /// assert_eq!(verb.past(WordForm::Short).unwrap().kana, String::from("ならった"));
+    /// assert_eq!(verb.past(WordForm::Short).unwrap().kanji.unwrap(), String::from("習った"));
+    ///
+    /// assert_eq!(verb.past(WordForm::Long).unwrap().kana, String::from("ならいました"));
+    /// assert_eq!(verb.past(WordForm::Long).unwrap().kanji.unwrap(), String::from("習いました"));
+    /// ```
+    pub fn past(&self, form: WordForm) -> JapaneseResult<Word> {
+        match form {
+            WordForm::Short => self.past_short(),
+            WordForm::Long => self.past_long(),
+        }
+    }
+
+    /// Returns the verb in the negative past form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("ならう", Some("習う")).into_verb(VerbType::Godan).unwrap();
+    /// assert_eq!(verb.negative_past(WordForm::Short).unwrap().kana, String::from("ならわなかった"));
+    /// assert_eq!(verb.negative_past(WordForm::Short).unwrap().kanji.unwrap(), String::from("習わなかった"));
+    ///
+    /// assert_eq!(verb.negative_past(WordForm::Long).unwrap().kana, String::from("ならいませんでした"));
+    /// assert_eq!(verb.negative_past(WordForm::Long).unwrap().kanji.unwrap(), String::from("習いませんでした"));
+    /// ```
+    pub fn negative_past(&self, form: WordForm) -> JapaneseResult<Word> {
+        match form {
+            WordForm::Short => self.negative_past_short(),
+            WordForm::Long => self.negative_past_long(),
+        }
+    }
+
+    /// Returns the verb in the negative short past form
+    fn negative_past_short(&self) -> JapaneseResult<Word> {
+        if self.word.has_reading("ある", None) {
+            return Ok(Word::new("なかった", None));
+        }
+
+        let mut negative_past = self.stem_short()?;
+        negative_past.push_str("なかった");
+        Ok(negative_past)
+    }
+
+    /// Returns the verb in the negative long past form
+    fn negative_past_long(&self) -> JapaneseResult<Word> {
+        let mut negative_past = self.stem_long()?;
+        negative_past.push_str("ませんでした");
+        Ok(negative_past)
+    }
+
+    /// Returns a word conjungated like て from but with a custom character instead of て
+    fn te_rule(&self, to_append: Syllable) -> JapaneseResult<Word> {
+        if self.word.ends_with("いく", Some("行く")) {
+            return Ok(Word::new(
+                format!("いっ{}", to_append),
+                Some(format!("行っ{}", to_append)),
+            ));
+        }
+
+        if self.word.ends_with("する", None) {
+            return Ok(Word::new(format!("し{}", to_append), None));
+        }
+
+        if self.word.ends_with("ある", None) {
+            return Ok(Word::new(format!("あっ{}", to_append), None));
+        }
+
+        if self.word.ends_with("くる", Some("来る")) {
+            return Ok(Word::new(
+                format!("き{}", to_append),
+                Some(format!("来{}", to_append)),
+            ));
+        }
+
+        match self.verb_type {
+            VerbType::Ichidan => Ok(self.te_rule_ichidan(to_append)),
+            VerbType::Godan | VerbType::Exception => Ok(self.te_rule_godan(to_append)?),
+        }
+    }
+
+    /// Applies the て rule for an ichidan verb
+    fn te_rule_ichidan(&self, to_append: Syllable) -> Word {
+        let mut w = self.word.clone().strip_end(1);
+        w.push(to_append.into());
+        w
+    }
+
+    /// Applies the て rule for a godan verb
+    fn te_rule_godan(&self, to_append: Syllable) -> JapaneseResult<Word> {
+        let mut new = self.map_ending(&[
+            ('す', 'し'),
+            ('く', 'い'),
+            ('ぐ', 'い'),
+            ('む', 'ん'),
+            ('ぶ', 'ん'),
+            ('ぬ', 'ん'),
+            ('る', 'っ'),
+            ('う', 'っ'),
+            ('つ', 'っ'),
+        ])?;
+
+        let mut to_append = to_append;
+
+        // Change `to_append` to だ/で
+        let ending = self.word.ending_syllable().unwrap().get_char();
+        if matches!(ending, 'ぐ' | 'む' | 'ぶ' | 'ぬ') {
+            to_append = to_append.to_dakuten();
+        }
+
+        new.push(to_append.into());
+        Ok(new)
+    }
+
+    /// Returns the verb in the short past form
+    fn past_short(&self) -> JapaneseResult<Word> {
+        self.te_rule(Syllable::from('た'))
+    }
+
+    /// Returns the verb in the long past form
+    fn past_long(&self) -> JapaneseResult<Word> {
+        let mut stem = self.stem_long()?;
+        stem.push_str("ました");
+        Ok(stem)
+    }
+
     /// Returns the word in the short negative form
     fn negative_short(&self) -> JapaneseResult<Word> {
         if self.word.kana == "ある" {
             return Ok(Word::new("ない", None));
         }
 
-        let mut negative = self.get_stem(WordForm::Short)?;
+        let mut negative = self.stem_short()?;
         negative.push_str("ない");
         Ok(negative)
     }
 
     /// Returns the word in the long negative form
     fn negative_long(&self) -> JapaneseResult<Word> {
-        let mut negative = self.get_stem(WordForm::Long)?;
+        let mut negative = self.stem_long()?;
         negative.push_str("ません");
         Ok(negative)
     }
@@ -219,15 +418,7 @@ impl Verb {
         }
 
         // Handle exception: 来る
-        let word = &self.word.kana;
-        if word == "くる"
-            || self
-                .word
-                .kanji
-                .as_ref()
-                .map(|i| i == "来る")
-                .unwrap_or(false)
-        {
+        if self.word.has_reading("くる", Some("来る")) {
             return Ok(Word {
                 kanji: Some(String::from("来")),
                 kana: String::from("こ"),
@@ -275,13 +466,13 @@ impl Verb {
             return Ok(self.word.clone().strip_end(2).push('し').to_owned());
         }
 
-        Ok(self.map_ending(mappings, 1)?)
+        Ok(self.map_ending(mappings)?)
     }
 
-    /// Trims [`n`] characters and maps the last character from the trimmed word using [`mappings`]
-    fn map_ending(&self, mappings: &[(char, char)], trim: usize) -> JapaneseResult<Word> {
+    /// Maps the last `char` of the verb using [`mappings`]
+    fn map_ending(&self, mappings: &[(char, char)]) -> JapaneseResult<Word> {
         let ending = self.word.ending_syllable().ok_or(Error::UnexpectedEnding)?;
-        let mut new_word = self.word.clone().strip_end(trim);
+        let mut new_word = self.word.clone().strip_end(1);
 
         for (src, dst) in mappings {
             if ending.get_char() == *src {
