@@ -10,6 +10,10 @@ fn main() -> Result<(), Error> {
     let word = Word::new("しる", Some("知る"));
     let verb = word.into_verb(VerbType::Godan)?; // Can throw an error since only verbs can be conjugated (correctly)
 
+    // Dictionary
+    assert_eq!(verb.dictionary(WordForm::Short)?.kanji.unwrap(), "知る");
+    assert_eq!(verb.dictionary(WordForm::Long)?.kanji.unwrap(), "知ります");
+
     // Stem
     assert_eq!(verb.get_stem(WordForm::Short)?.kanji.unwrap(), "知ら");
     assert_eq!(verb.get_stem(WordForm::Long)?.kanji.unwrap(), "知り");
