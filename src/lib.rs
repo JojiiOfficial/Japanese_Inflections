@@ -123,6 +123,15 @@ impl Word {
         false
     }
 
+    /// Returns the kanji reading if possible, otherwise the kana reading gets returned
+    pub fn get_reading(&self) -> String {
+        if let Some(ref kanji) = self.kanji {
+            kanji.to_owned()
+        } else {
+            self.kana.to_owned()
+        }
+    }
+
     /// Returns the last syllable of the word
     fn ending_syllable(&self) -> Option<Syllable> {
         self.kana.chars().last().map(Syllable::from)
@@ -175,6 +184,11 @@ impl Verb {
     /// Returns a new verb
     pub fn new(word: Word, verb_type: VerbType) -> Self {
         Self { word, verb_type }
+    }
+
+    /// Same as Word::get_reading(&self)
+    pub fn get_reading(&self) -> String {
+        self.word.get_reading()
     }
 
     /// Returns true if [`self`] is in dictionary form
