@@ -374,6 +374,113 @@ impl Verb {
         }
     }
 
+    /// Returns the verb in the causative form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("たべる", Some("食べる")).into_verb(VerbType::Ichidan).unwrap();
+    /// assert_eq!(verb.causative().unwrap().kana, String::from("たべさせる"));
+    /// assert_eq!(verb.causative().unwrap().kanji.unwrap(), String::from("食べさせる"));
+    /// ```
+    pub fn causative(&self) -> JapaneseResult<Word> {
+        if self.verb_type == VerbType::Ichidan {
+            let mut stripped = self.word.clone().strip_end(1);
+            stripped.push_str("させる");
+            return Ok(stripped);
+        }
+
+        if self.word.ends_with("する", None) {
+            return Ok(Word {
+                kana: String::from("させる"),
+                kanji: None,
+                inflections: Vec::new(),
+            });
+        }
+
+        if self.word.ends_with("くる", Some("来る")) {
+            return Ok(Word {
+                kana: String::from("こさせる"),
+                kanji: Some("来させる".to_owned()),
+                inflections: Vec::new(),
+            });
+        }
+
+        let mut short_stem = self.stem_short()?;
+        short_stem.push_str("せる");
+        Ok(short_stem)
+    }
+
+    /// Returns the verb in the negative causative form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("たべる", Some("食べる")).into_verb(VerbType::Ichidan).unwrap();
+    /// assert_eq!(verb.negative_causative().unwrap().kana, String::from("たべさせない"));
+    /// assert_eq!(verb.negative_causative().unwrap().kanji.unwrap(), String::from("食べさせない"));
+    /// ```
+    pub fn negative_causative(&self) -> JapaneseResult<Word> {
+        let causative = self.causative()?;
+        let mut negative_causative = causative.strip_end(1);
+        negative_causative.push_str("ない");
+        Ok(negative_causative)
+    }
+
+    /// Returns the verb in the passive form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("たべる", Some("食べる")).into_verb(VerbType::Ichidan).unwrap();
+    /// assert_eq!(verb.passive().unwrap().kana, String::from("たべられる"));
+    /// assert_eq!(verb.passive().unwrap().kanji.unwrap(), String::from("食べられる"));
+    /// ```
+    pub fn passive(&self) -> JapaneseResult<Word> {
+        if self.word.ends_with("する", None) {
+            return Ok(Word {
+                kana: String::from("される"),
+                kanji: None,
+                inflections: Vec::new(),
+            });
+        }
+
+        if self.word.ends_with("くる", Some("来る")) {
+            return Ok(Word {
+                kana: String::from("こられる"),
+                kanji: Some("来られる".to_owned()),
+                inflections: Vec::new(),
+            });
+        }
+
+        let mut short_stem = self.stem_short()?;
+        if self.verb_type == VerbType::Ichidan {
+            short_stem.push('ら');
+        }
+        short_stem.push_str("れる");
+        Ok(short_stem)
+    }
+
+    /// Returns the verb in the negative passive form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("たべる", Some("食べる")).into_verb(VerbType::Ichidan).unwrap();
+    /// assert_eq!(verb.negative_passive().unwrap().kana, String::from("たべられない"));
+    /// assert_eq!(verb.negative_passive().unwrap().kanji.unwrap(), String::from("食べられない"));
+    /// ```
+    pub fn negative_passive(&self) -> JapaneseResult<Word> {
+        let passive = self.passive()?;
+        let mut negative_passive = passive.strip_end(1);
+        negative_passive.push_str("ない");
+        Ok(negative_passive)
+    }
+
     /// Returns the short negative potential form of the verb
     fn negative_potential_short(&self) -> JapaneseResult<Word> {
         let mut stem = self.stem_potential()?;
