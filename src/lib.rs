@@ -151,8 +151,8 @@ impl Word {
             kanji: self
                 .kanji
                 .as_ref()
-                .map(|i| i[..i.len() - kana_bytes].to_owned()),
-            kana: self.kana[..self.kana.len() - kanji_bytes].to_owned(),
+                .map(|i| i[..i.len() - kanji_bytes].to_owned()),
+            kana: self.kana[..self.kana.len() - kana_bytes].to_owned(),
         }
     }
 
@@ -484,6 +484,14 @@ impl Verb {
     fn stem_long(&self) -> JapaneseResult<Word> {
         if self.verb_type == VerbType::Ichidan {
             return Ok(self.word.clone().strip_end(1));
+        }
+
+        if self.word.ends_with("くる", Some("来る")) {
+            return Ok(Word {
+                kanji: Some(String::from("来")),
+                kana: String::from("き"),
+                inflections: Vec::new(),
+            });
         }
 
         self.stem(&[
