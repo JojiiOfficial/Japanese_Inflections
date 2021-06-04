@@ -334,6 +334,74 @@ impl Verb {
         }
     }
 
+    /// Returns the verb in the potential form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("ならう", Some("習う")).into_verb(VerbType::Godan).unwrap();
+    /// assert_eq!(verb.potential(WordForm::Short).unwrap().kana, String::from("ならえる"));
+    /// assert_eq!(verb.potential(WordForm::Short).unwrap().kanji.unwrap(), String::from("習える"));
+    ///
+    /// assert_eq!(verb.potential(WordForm::Long).unwrap().kana, String::from("ならえます"));
+    /// assert_eq!(verb.potential(WordForm::Long).unwrap().kanji.unwrap(), String::from("習えます"));
+    /// ```
+    pub fn potential(&self, form: WordForm) -> JapaneseResult<Word> {
+        match form {
+            WordForm::Short => self.potential_short(),
+            WordForm::Long => self.potential_long(),
+        }
+    }
+
+    /// Returns the verb in the negative potential form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("ならう", Some("習う")).into_verb(VerbType::Godan).unwrap();
+    /// assert_eq!(verb.negative_potential(WordForm::Short).unwrap().kana, String::from("ならえない"));
+    /// assert_eq!(verb.negative_potential(WordForm::Short).unwrap().kanji.unwrap(), String::from("習えない"));
+    ///
+    /// assert_eq!(verb.negative_potential(WordForm::Long).unwrap().kana, String::from("ならえません"));
+    /// assert_eq!(verb.negative_potential(WordForm::Long).unwrap().kanji.unwrap(), String::from("習えません"));
+    /// ```
+    pub fn negative_potential(&self, form: WordForm) -> JapaneseResult<Word> {
+        match form {
+            WordForm::Short => self.negative_potential_short(),
+            WordForm::Long => self.negative_potential_long(),
+        }
+    }
+
+    /// Returns the short negative potential form of the verb
+    fn negative_potential_short(&self) -> JapaneseResult<Word> {
+        let mut stem = self.stem_potential()?;
+        stem.push_str("ない");
+        Ok(stem)
+    }
+
+    /// Returns the long negative potential form of the verb
+    fn negative_potential_long(&self) -> JapaneseResult<Word> {
+        let mut stem = self.stem_potential()?;
+        stem.push_str("ません");
+        Ok(stem)
+    }
+
+    /// Returns the short potential form of the verb
+    fn potential_short(&self) -> JapaneseResult<Word> {
+        let mut stem = self.stem_potential()?;
+        stem.push('る');
+        Ok(stem)
+    }
+
+    /// Returns the long potential form of the verb
+    fn potential_long(&self) -> JapaneseResult<Word> {
+        let mut stem = self.stem_potential()?;
+        stem.push_str("ます");
+        Ok(stem)
+    }
+
     /// Returns the polite present form of the word
     fn dictionary_polite(&self) -> JapaneseResult<Word> {
         let mut stem = self.stem_long()?;
@@ -467,7 +535,7 @@ impl Verb {
             });
         }
 
-        self.stem(&[
+        self.mapped_stem(&[
             ('す', 'さ'),
             ('く', 'か'),
             ('ぐ', 'が'),
@@ -494,7 +562,7 @@ impl Verb {
             });
         }
 
-        self.stem(&[
+        self.mapped_stem(&[
             ('す', 'し'),
             ('く', 'き'),
             ('ぐ', 'ぎ'),
@@ -507,8 +575,43 @@ impl Verb {
         ])
     }
 
+    /// Returns the potential stem of the verb
+    fn stem_potential(&self) -> JapaneseResult<Word> {
+        if self.verb_type == VerbType::Ichidan {
+            return Ok(self.word.clone().strip_end(1).push_str("られ").to_owned());
+        }
+
+        if self.word.ends_with("する", None) {
+            return Ok(Word {
+                kana: String::from("でき"),
+                kanji: None,
+                inflections: Vec::new(),
+            });
+        }
+
+        if self.word.ends_with("くる", Some("来る")) {
+            return Ok(Word {
+                kana: String::from("こられ"),
+                kanji: Some("来られ".to_owned()),
+                inflections: Vec::new(),
+            });
+        }
+
+        self.mapped_stem(&[
+            ('す', 'せ'),
+            ('く', 'け'),
+            ('ぐ', 'げ'),
+            ('む', 'め'),
+            ('ぶ', 'べ'),
+            ('ぬ', 'ね'),
+            ('る', 'れ'),
+            ('う', 'え'),
+            ('つ', 'て'),
+        ])
+    }
+
     /// Returns the stem of a word using [`mappings`]
-    fn stem(&self, mappings: &[(char, char)]) -> JapaneseResult<Word> {
+    fn mapped_stem(&self, mappings: &[(char, char)]) -> JapaneseResult<Word> {
         let word = &self.word.kana;
 
         if word.ends_with("する") {
