@@ -42,6 +42,14 @@ fn main() -> Result<(), Error> {
     // Negative Te form
     assert_eq!(verb.negative_te_form()?.kanji.unwrap(), "知らなくて");
 
+    // Potential
+    assert_eq!(verb.potential(WordForm::Short)?.kanji.unwrap(), "知れる");
+    assert_eq!(verb.potential(WordForm::Long)?.kanji.unwrap(), "知れます");
+
+    // Potential Negative
+    assert_eq!(verb.negative_potential(WordForm::Short)?.kanji.unwrap(), "知れない");
+    assert_eq!(verb.negative_potential(WordForm::Long)?.kanji.unwrap(), "知れません");
+
     Ok(())
 }
 ```
