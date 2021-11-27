@@ -219,7 +219,7 @@ impl Verb {
     /// ```
     pub fn get_stem(&self, form: WordForm) -> JapaneseResult<Word> {
         match form {
-            WordForm::Short => self.stem_short(),
+            WordForm::Short => self.nai_stem(),
             WordForm::Long => self.stem_long(),
         }
     }
@@ -374,6 +374,66 @@ impl Verb {
         }
     }
 
+    /// Returns the verb in the imperative form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("たべる", Some("食べる")).into_verb(VerbType::Ichidan).unwrap();
+    /// assert_eq!(verb.imperative().unwrap().kana, String::from("たべろ"));
+    /// assert_eq!(verb.imperative().unwrap().kanji.unwrap(), String::from("食べろ"));
+    ///
+    /// let verb = Word::new("ならう", Some("習う")).into_verb(VerbType::Godan).unwrap();
+    /// assert_eq!(verb.imperative().unwrap().kana, String::from("ならえ"));
+    /// assert_eq!(verb.imperative().unwrap().kanji.unwrap(), String::from("習え"));
+    /// ```
+    pub fn imperative(&self) -> JapaneseResult<Word> {
+        if self.verb_type == VerbType::Ichidan {
+            let mut stripped = self.word.clone().strip_end(1);
+            stripped.push_str("ろ");
+            return Ok(stripped);
+        }
+
+        if self.word.ends_with("する", None) {
+            return Ok(Word {
+                kana: String::from("しろ"),
+                kanji: None,
+                inflections: Vec::new(),
+            });
+        }
+
+        if self.word.ends_with("くる", Some("来る")) {
+            return Ok(Word {
+                kana: String::from("こい"),
+                kanji: Some("来い".to_owned()),
+                inflections: Vec::new(),
+            });
+        }
+
+        self.stem_potential()
+    }
+
+    /// Returns the verb in the negative imperative form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("たべる", Some("食べる")).into_verb(VerbType::Ichidan).unwrap();
+    /// assert_eq!(verb.imperative_negative().unwrap().kana, String::from("たべるな"));
+    /// assert_eq!(verb.imperative_negative().unwrap().kanji.unwrap(), String::from("食べるな"));
+    ///
+    /// let verb = Word::new("ならう", Some("習う")).into_verb(VerbType::Godan).unwrap();
+    /// assert_eq!(verb.imperative_negative().unwrap().kana, String::from("ならうな"));
+    /// assert_eq!(verb.imperative_negative().unwrap().kanji.unwrap(), String::from("習うな"));
+    /// ```
+    pub fn imperative_negative(&self) -> JapaneseResult<Word> {
+        let mut stripped = self.word.clone();
+        stripped.push_str("な");
+        return Ok(stripped);
+    }
+
     /// Returns the verb in the causative form
     ///
     /// # Example
@@ -407,8 +467,48 @@ impl Verb {
             });
         }
 
-        let mut short_stem = self.stem_short()?;
+        let mut short_stem = self.nai_stem()?;
         short_stem.push_str("せる");
+        Ok(short_stem)
+    }
+
+    /// Returns the verb in the passive-causative form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("たべる", Some("食べる")).into_verb(VerbType::Ichidan).unwrap();
+    /// assert_eq!(verb.causative_passive().unwrap().kana, String::from("たべさせられる"));
+    /// assert_eq!(verb.causative_passive().unwrap().kanji.unwrap(), String::from("食べさせられる"));
+    /// let verb = Word::new("ならう", Some("習う")).into_verb(VerbType::Godan).unwrap();
+    /// assert_eq!(verb.causative_passive().unwrap().kanji.unwrap(), String::from("習わされる"));
+    /// ```
+    pub fn causative_passive(&self) -> JapaneseResult<Word> {
+        if self.verb_type == VerbType::Ichidan {
+            let mut stripped = self.word.clone().strip_end(1);
+            stripped.push_str("させられる");
+            return Ok(stripped);
+        }
+
+        if self.word.ends_with("する", None) {
+            return Ok(Word {
+                kana: String::from("させられる"),
+                kanji: None,
+                inflections: Vec::new(),
+            });
+        }
+
+        if self.word.ends_with("くる", Some("来る")) {
+            return Ok(Word {
+                kana: String::from("こさせられる"),
+                kanji: Some("来させられる".to_owned()),
+                inflections: Vec::new(),
+            });
+        }
+
+        let mut short_stem = self.nai_stem()?;
+        short_stem.push_str("される");
         Ok(short_stem)
     }
 
@@ -456,7 +556,7 @@ impl Verb {
             });
         }
 
-        let mut short_stem = self.stem_short()?;
+        let mut short_stem = self.nai_stem()?;
         if self.verb_type == VerbType::Ichidan {
             short_stem.push('ら');
         }
@@ -522,7 +622,7 @@ impl Verb {
             return Ok(Word::new("なかった", None));
         }
 
-        let mut negative_past = self.stem_short()?;
+        let mut negative_past = self.nai_stem()?;
         negative_past.push_str("なかった");
         Ok(negative_past)
     }
@@ -615,7 +715,7 @@ impl Verb {
             return Ok(Word::new("ない", None));
         }
 
-        let mut negative = self.stem_short()?;
+        let mut negative = self.nai_stem()?;
         negative.push_str("ない");
         Ok(negative)
     }
@@ -628,7 +728,7 @@ impl Verb {
     }
 
     /// Returns the short stem of a the verb
-    fn stem_short(&self) -> JapaneseResult<Word> {
+    fn nai_stem(&self) -> JapaneseResult<Word> {
         if self.verb_type == VerbType::Ichidan {
             return Ok(self.word.clone().strip_end(1));
         }
