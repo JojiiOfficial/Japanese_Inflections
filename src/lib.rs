@@ -512,6 +512,24 @@ impl Verb {
         Ok(short_stem)
     }
 
+    /// Returns the verb in the negative passive-causative form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("たべる", Some("食べる")).into_verb(VerbType::Ichidan).unwrap();
+    /// assert_eq!(verb.negative_causative_passive().unwrap().kana, String::from("たべさせられない"));
+    /// assert_eq!(verb.negative_causative_passive().unwrap().kanji.unwrap(), String::from("食べさせられない"));
+    /// let verb = Word::new("ならう", Some("習う")).into_verb(VerbType::Godan).unwrap();
+    /// assert_eq!(verb.negative_causative_passive().unwrap().kanji.unwrap(), String::from("習わされない"));
+    /// ```
+    pub fn negative_causative_passive(&self) -> JapaneseResult<Word> {
+        let mut causative_passive = self.causative_passive()?.strip_end(1);
+        causative_passive.push_str("ない");
+        Ok(causative_passive)
+    }
+
     /// Returns the verb in the negative causative form
     ///
     /// # Example
