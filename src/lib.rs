@@ -395,20 +395,20 @@ impl Verb {
             return Ok(stripped);
         }
 
-        if self.word.ends_with("する", None) {
-            return Ok(Word {
-                kana: String::from("しろ"),
-                kanji: None,
-                inflections: Vec::new(),
-            });
-        }
-
-        if self.word.ends_with("くる", Some("来る")) {
-            return Ok(Word {
-                kana: String::from("こい"),
-                kanji: Some("来い".to_owned()),
-                inflections: Vec::new(),
-            });
+        if self.is_exception() {
+            if self.word.ends_with("する", None) {
+                return Ok(Word {
+                    kana: String::from("しろ"),
+                    kanji: Some(String::from("為ろ")),
+                    inflections: Vec::new(),
+                });
+            } else if self.word.ends_with("くる", Some("来る")) {
+                return Ok(Word {
+                    kana: String::from("こい"),
+                    kanji: Some("来い".to_owned()),
+                    inflections: Vec::new(),
+                });
+            }
         }
 
         self.stem_potential()
@@ -451,20 +451,20 @@ impl Verb {
             return Ok(stripped);
         }
 
-        if self.word.ends_with("する", None) {
-            return Ok(Word {
-                kana: String::from("させる"),
-                kanji: None,
-                inflections: Vec::new(),
-            });
-        }
-
-        if self.word.ends_with("くる", Some("来る")) {
-            return Ok(Word {
-                kana: String::from("こさせる"),
-                kanji: Some("来させる".to_owned()),
-                inflections: Vec::new(),
-            });
+        if self.is_exception() {
+            if self.word.ends_with("する", None) {
+                return Ok(Word {
+                    kana: String::from("為せる"),
+                    kanji: None,
+                    inflections: Vec::new(),
+                });
+            } else if self.word.ends_with("くる", Some("来る")) {
+                return Ok(Word {
+                    kana: String::from("こさせる"),
+                    kanji: Some("来させる".to_owned()),
+                    inflections: Vec::new(),
+                });
+            }
         }
 
         let mut short_stem = self.nai_stem()?;
@@ -491,20 +491,20 @@ impl Verb {
             return Ok(stripped);
         }
 
-        if self.word.ends_with("する", None) {
-            return Ok(Word {
-                kana: String::from("させられる"),
-                kanji: None,
-                inflections: Vec::new(),
-            });
-        }
-
-        if self.word.ends_with("くる", Some("来る")) {
-            return Ok(Word {
-                kana: String::from("こさせられる"),
-                kanji: Some("来させられる".to_owned()),
-                inflections: Vec::new(),
-            });
+        if self.is_exception() {
+            if self.word.ends_with("する", None) {
+                return Ok(Word {
+                    kana: String::from("させられる"),
+                    kanji: Some(String::from("為せられる")),
+                    inflections: Vec::new(),
+                });
+            } else if self.word.ends_with("くる", Some("来る")) {
+                return Ok(Word {
+                    kana: String::from("こさせられる"),
+                    kanji: Some("来させられる".to_owned()),
+                    inflections: Vec::new(),
+                });
+            }
         }
 
         let mut short_stem = self.nai_stem()?;
@@ -558,20 +558,20 @@ impl Verb {
     /// assert_eq!(verb.passive().unwrap().kanji.unwrap(), String::from("食べられる"));
     /// ```
     pub fn passive(&self) -> JapaneseResult<Word> {
-        if self.word.ends_with("する", None) {
-            return Ok(Word {
-                kana: String::from("される"),
-                kanji: None,
-                inflections: Vec::new(),
-            });
-        }
-
-        if self.word.ends_with("くる", Some("来る")) {
-            return Ok(Word {
-                kana: String::from("こられる"),
-                kanji: Some("来られる".to_owned()),
-                inflections: Vec::new(),
-            });
+        if self.is_exception() {
+            if self.word.ends_with("する", None) {
+                return Ok(Word {
+                    kana: String::from("される"),
+                    kanji: Some(String::from("為れる")),
+                    inflections: Vec::new(),
+                });
+            } else if self.word.ends_with("くる", Some("来る")) {
+                return Ok(Word {
+                    kana: String::from("こられる"),
+                    kanji: Some("来られる".to_owned()),
+                    inflections: Vec::new(),
+                });
+            }
         }
 
         let mut short_stem = self.nai_stem()?;
@@ -661,19 +661,22 @@ impl Verb {
             ));
         }
 
-        if self.word.ends_with("する", None) {
-            return Ok(Word::new(format!("し{}", to_append), None));
+        if self.is_exception() {
+            if self.word.ends_with("する", None) {
+                let kanji = format!("為{}", to_append);
+                return Ok(Word::new(format!("し{}", to_append), Some(kanji)));
+            }
+
+            if self.word.ends_with("くる", Some("来る")) {
+                return Ok(Word::new(
+                    format!("き{}", to_append),
+                    Some(format!("来{}", to_append)),
+                ));
+            }
         }
 
         if self.word.ends_with("ある", None) {
             return Ok(Word::new(format!("あっ{}", to_append), None));
-        }
-
-        if self.word.ends_with("くる", Some("来る")) {
-            return Ok(Word::new(
-                format!("き{}", to_append),
-                Some(format!("来{}", to_append)),
-            ));
         }
 
         match self.verb_type {
@@ -752,12 +755,20 @@ impl Verb {
         }
 
         // Handle exception: 来る
-        if self.word.has_reading("くる", Some("来る")) {
-            return Ok(Word {
-                kanji: Some(String::from("来")),
-                kana: String::from("こ"),
-                inflections: Vec::new(),
-            });
+        if self.is_exception() {
+            if self.word.has_reading("くる", Some("来る")) {
+                return Ok(Word {
+                    kanji: Some(String::from("来")),
+                    kana: String::from("こ"),
+                    inflections: Vec::new(),
+                });
+            } else if self.word.ends_with("する", None) {
+                return Ok(Word {
+                    kanji: Some(String::from("為")),
+                    kana: String::from("し"),
+                    inflections: Vec::new(),
+                });
+            }
         }
 
         self.mapped_stem(&[
@@ -779,12 +790,20 @@ impl Verb {
             return Ok(self.word.clone().strip_end(1));
         }
 
-        if self.word.ends_with("くる", Some("来る")) {
-            return Ok(Word {
-                kanji: Some(String::from("来")),
-                kana: String::from("き"),
-                inflections: Vec::new(),
-            });
+        if self.is_exception() {
+            if self.word.ends_with("くる", Some("来る")) {
+                return Ok(Word {
+                    kanji: Some(String::from("来")),
+                    kana: String::from("き"),
+                    inflections: Vec::new(),
+                });
+            } else if self.word.ends_with("する", None) {
+                return Ok(Word {
+                    kanji: Some(String::from("為")),
+                    kana: String::from("す"),
+                    inflections: Vec::new(),
+                });
+            }
         }
 
         self.mapped_stem(&[
@@ -806,20 +825,22 @@ impl Verb {
             return Ok(self.word.clone().strip_end(1).push_str("られ").to_owned());
         }
 
-        if self.word.ends_with("する", None) {
-            return Ok(Word {
-                kana: String::from("でき"),
-                kanji: None,
-                inflections: Vec::new(),
-            });
-        }
+        if self.is_exception() {
+            if self.word.ends_with("する", None) {
+                return Ok(Word {
+                    kana: String::from("でき"),
+                    kanji: Some(String::from("出来")),
+                    inflections: Vec::new(),
+                });
+            }
 
-        if self.word.ends_with("くる", Some("来る")) {
-            return Ok(Word {
-                kana: String::from("こられ"),
-                kanji: Some("来られ".to_owned()),
-                inflections: Vec::new(),
-            });
+            if self.word.ends_with("くる", Some("来る")) {
+                return Ok(Word {
+                    kana: String::from("こられ"),
+                    kanji: Some("来られ".to_owned()),
+                    inflections: Vec::new(),
+                });
+            }
         }
 
         self.mapped_stem(&[
@@ -839,7 +860,7 @@ impl Verb {
     fn mapped_stem(&self, mappings: &[(char, char)]) -> JapaneseResult<Word> {
         let word = &self.word.kana;
 
-        if word.ends_with("する") {
+        if word.ends_with("する") && self.is_exception() {
             return Ok(self.word.clone().strip_end(2).push('し').to_owned());
         }
 
@@ -859,5 +880,10 @@ impl Verb {
         }
 
         Err(Error::UnexpectedEnding)
+    }
+
+    /// Returuns `true` if verb_type is exception
+    fn is_exception(&self) -> bool {
+        self.verb_type == VerbType::Exception
     }
 }
