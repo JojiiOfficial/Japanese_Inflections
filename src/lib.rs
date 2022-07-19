@@ -454,8 +454,8 @@ impl Verb {
         if self.is_exception() {
             if self.word.ends_with("する", None) {
                 return Ok(Word {
-                    kana: String::from("為せる"),
-                    kanji: None,
+                    kanji: Some(String::from("為せる")),
+                    kana: "させる".to_string(),
                     inflections: Vec::new(),
                 });
             } else if self.word.ends_with("くる", Some("来る")) {
@@ -800,7 +800,7 @@ impl Verb {
             } else if self.word.ends_with("する", None) {
                 return Ok(Word {
                     kanji: Some(String::from("為")),
-                    kana: String::from("す"),
+                    kana: String::from("し"),
                     inflections: Vec::new(),
                 });
             }
