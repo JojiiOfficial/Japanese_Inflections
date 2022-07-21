@@ -132,7 +132,7 @@ impl Word {
         }
     }
 
-    pub fn try_kanji(&self, kana: bool) -> String {
+    pub fn try_kana(&self, kana: bool) -> String {
         if kana {
             return self.kana.to_owned();
         }
