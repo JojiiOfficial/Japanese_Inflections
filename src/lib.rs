@@ -132,6 +132,14 @@ impl Word {
         }
     }
 
+    pub fn try_kana(&self, kana: bool) -> String {
+        if kana {
+            return self.kana.to_owned();
+        }
+
+        self.get_reading()
+    }
+
     /// Returns the last syllable of the word
     fn ending_syllable(&self) -> Option<Syllable> {
         self.kana.chars().last().map(Syllable::from)
