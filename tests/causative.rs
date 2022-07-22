@@ -37,9 +37,9 @@ fn exceptions() {
 
     VerbTest::new(
         "する",
-        None,
+        Some("為る"),
         VerbType::Exception,
-        vec![AssertedResult::new("させる", None)],
+        vec![AssertedResult::new("させる", Some("為せる"))],
     )
     .run([|v| v.causative()]);
 }
