@@ -814,6 +814,10 @@ impl Verb {
             }
         }
 
+        if self.is_polite() {
+            return Ok(self.word.clone().strip_end(1).push_str("い").to_owned());
+        }
+
         self.mapped_stem(&[
             ('す', 'し'),
             ('く', 'き'),
@@ -893,5 +897,17 @@ impl Verb {
     /// Returuns `true` if verb_type is exception
     fn is_exception(&self) -> bool {
         self.verb_type == VerbType::Exception
+    }
+
+    /// Returns `true` if the verb is one of the 5 polite verbs
+    fn is_polite(&self) -> bool {
+        match self.word.kana.as_str() {
+            "いらっしゃる" => true,
+            "おっしゃる" => true,
+            "くださる" => true,
+            "ござる" => true,
+            "なさる" => true,
+            _ => false,
+        }
     }
 }
