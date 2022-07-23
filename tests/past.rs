@@ -10,7 +10,8 @@ fn ichidan() {
         Some("食べる"),
         VerbType::Ichidan,
         vec![
-            AssertedResult::new("たべた", Some("食べた")), AssertedResult::new("たべました", Some("食べました")),
+            AssertedResult::new("たべた", Some("食べた")),
+            AssertedResult::new("たべました", Some("食べました")),
         ],
     )
     .run([|v| v.past(WordForm::Short), |v| v.past(WordForm::Long)]);

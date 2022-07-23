@@ -86,7 +86,7 @@ fn polite_verbs() {
         |v: &Verb| v.dictionary(WordForm::Short),
         |v: &Verb| v.dictionary(WordForm::Long),
     ]);
-    
+
     VerbTest::new(
         "おっしゃる",
         Some("仰る"),
