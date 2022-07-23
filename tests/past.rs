@@ -10,8 +10,7 @@ fn ichidan() {
         Some("食べる"),
         VerbType::Ichidan,
         vec![
-            AssertedResult::new("たべた", Some("食べた")),
-            AssertedResult::new("たべました", Some("食べました")),
+            AssertedResult::new("たべた", Some("食べた")), AssertedResult::new("たべました", Some("食べました")),
         ],
     )
     .run([|v| v.past(WordForm::Short), |v| v.past(WordForm::Long)]);
@@ -62,6 +61,17 @@ fn exceptions() {
         vec![
             AssertedResult::new("した", None),
             AssertedResult::new("しました", None),
+        ],
+    )
+    .run([|v| v.past(WordForm::Short), |v| v.past(WordForm::Long)]);
+
+    VerbTest::new(
+        "いらっしゃる",
+        None,
+        VerbType::Exception,
+        vec![
+            AssertedResult::new("いらっしゃった", None),
+            AssertedResult::new("いらっしゃいました", None),
         ],
     )
     .run([|v| v.past(WordForm::Short), |v| v.past(WordForm::Long)]);

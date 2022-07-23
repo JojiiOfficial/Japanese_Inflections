@@ -80,4 +80,18 @@ fn exceptions() {
         |v| v.negative(WordForm::Short),
         |v| v.negative(WordForm::Long),
     ]);
+
+    VerbTest::new(
+        "いらっしゃる",
+        None,
+        VerbType::Exception,
+        vec![
+            AssertedResult::new("いらっしゃらない", None),
+            AssertedResult::new("いらっしゃいません", None),
+        ],
+    )
+    .run([
+        |v| v.negative(WordForm::Short),
+        |v| v.negative(WordForm::Long),
+    ]);
 }
