@@ -419,6 +419,10 @@ impl Verb {
             }
         }
 
+        if self.is_polite() {
+            return Ok(self.word.clone().strip_end(1).push_str("い").to_owned());
+        }
+
         self.stem_potential()
     }
 
