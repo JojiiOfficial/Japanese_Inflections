@@ -283,6 +283,10 @@ impl Verb {
     /// assert_eq!(verb.te_form().unwrap().kanji.unwrap(), String::from("習って"));
     /// ```
     pub fn te_form(&self) -> JapaneseResult<Word> {
+        if self.word.kana == "いらっしゃる" {
+            return Ok(Word::new("いらして", None));
+        }
+
         self.te_rule(Syllable::from('て'))
     }
 

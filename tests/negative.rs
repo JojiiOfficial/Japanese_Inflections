@@ -84,7 +84,7 @@ fn exceptions() {
     VerbTest::new(
         "いらっしゃる",
         None,
-        VerbType::Exception,
+        VerbType::Godan,
         vec![
             AssertedResult::new("いらっしゃらない", None),
             AssertedResult::new("いらっしゃいません", None),
