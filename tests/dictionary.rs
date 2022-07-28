@@ -76,7 +76,7 @@ fn polite_verbs() {
     VerbTest::new(
         "いらっしゃる",
         None,
-        VerbType::Exception,
+        VerbType::Godan,
         vec![
             AssertedResult::new("いらっしゃる", None),
             AssertedResult::new("いらっしゃいます", None),
@@ -90,7 +90,7 @@ fn polite_verbs() {
     VerbTest::new(
         "おっしゃる",
         Some("仰る"),
-        VerbType::Exception,
+        VerbType::Godan,
         vec![
             AssertedResult::new("おっしゃる", Some("仰る")),
             AssertedResult::new("おっしゃいます", Some("仰います")),
@@ -104,7 +104,7 @@ fn polite_verbs() {
     VerbTest::new(
         "くださる",
         Some("下さる"),
-        VerbType::Exception,
+        VerbType::Godan,
         vec![
             AssertedResult::new("くださる", Some("下さる")),
             AssertedResult::new("くださいます", Some("下さいます")),
@@ -118,7 +118,7 @@ fn polite_verbs() {
     VerbTest::new(
         "ござる",
         Some("御座る"),
-        VerbType::Exception,
+        VerbType::Godan,
         vec![
             AssertedResult::new("ござる", Some("御座る")),
             AssertedResult::new("ございます", Some("御座います")),
@@ -132,7 +132,7 @@ fn polite_verbs() {
     VerbTest::new(
         "なさる",
         Some("為さる"),
-        VerbType::Exception,
+        VerbType::Godan,
         vec![
             AssertedResult::new("なさる", Some("為さる")),
             AssertedResult::new("なさいます", Some("為さいます")),

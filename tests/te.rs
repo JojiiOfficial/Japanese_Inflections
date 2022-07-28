@@ -86,4 +86,13 @@ fn exceptions() {
         vec![AssertedResult::new("きて", Some("来て"))],
     )
     .run([|v| v.te_form()]);
+
+    // いらっしゃる
+    VerbTest::new(
+        "いらっしゃる",
+        None,
+        VerbType::Godan,
+        vec![AssertedResult::new("いらして", None)],
+    )
+    .run([|v| v.te_form()]);
 }
