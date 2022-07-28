@@ -42,4 +42,12 @@ fn exceptions() {
         vec![AssertedResult::new("させない", None)],
     )
     .run([|v| v.negative_causative()]);
+
+    VerbTest::new(
+        "みみにする",
+        Some("耳にする"),
+        VerbType::Exception,
+        vec![AssertedResult::new("みみにさせない", Some("耳にさせない"))],
+    )
+    .run([|v| v.negative_causative()]);
 }

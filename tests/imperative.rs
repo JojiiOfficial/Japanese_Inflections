@@ -44,6 +44,14 @@ fn exceptions() {
     .run([|v| v.imperative()]);
 
     VerbTest::new(
+        "みみにする",
+        Some("耳にする"),
+        VerbType::Exception,
+        vec![AssertedResult::new("みみにしろ", Some("耳にしろ"))],
+    )
+    .run([|v| v.imperative()]);
+
+    VerbTest::new(
         "いらっしゃる",
         None,
         VerbType::Exception,

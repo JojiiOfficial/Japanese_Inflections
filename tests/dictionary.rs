@@ -52,6 +52,20 @@ fn suru() {
         |v: &Verb| v.dictionary(WordForm::Short),
         |v: &Verb| v.dictionary(WordForm::Long),
     ]);
+
+    VerbTest::new(
+        "みみにする",
+        Some("耳にする"),
+        VerbType::Exception,
+        vec![
+            AssertedResult::new("みみにする", Some("耳にする")),
+            AssertedResult::new("みみにします", Some("耳にします")),
+        ],
+    )
+    .run([
+        |v: &Verb| v.dictionary(WordForm::Short),
+        |v: &Verb| v.dictionary(WordForm::Long),
+    ]);
 }
 
 #[test]

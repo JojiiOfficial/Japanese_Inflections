@@ -409,11 +409,17 @@ impl Verb {
 
         if self.is_exception() {
             if self.word.ends_with("する", None) {
-                return Ok(Word {
-                    kana: String::from("しろ"),
-                    kanji: Some(String::from("為ろ")),
-                    inflections: Vec::new(),
-                });
+                if self.word.kana == "する" {
+                    return Ok(Word {
+                        kana: String::from("しろ"),
+                        kanji: Some(String::from("為ろ")),
+                        inflections: Vec::new(),
+                    });
+                }
+
+                let mut prefix = self.word.clone().strip_end(2);
+                prefix.push_str("しろ");
+                return Ok(prefix);
             } else if self.word.ends_with("くる", Some("来る")) {
                 return Ok(Word {
                     kana: String::from("こい"),
@@ -469,11 +475,17 @@ impl Verb {
 
         if self.is_exception() {
             if self.word.ends_with("する", Some("為る")) {
-                return Ok(Word {
-                    kana: String::from("させる"),
-                    kanji: Some(String::from("為せる")),
-                    inflections: Vec::new(),
-                });
+                if self.word.kana == "する" {
+                    return Ok(Word {
+                        kana: String::from("させる"),
+                        kanji: Some(String::from("為せる")),
+                        inflections: Vec::new(),
+                    });
+                }
+
+                let mut prefix = self.word.clone().strip_end(2);
+                prefix.push_str("させる");
+                return Ok(prefix);
             } else if self.word.ends_with("くる", Some("来る")) {
                 return Ok(Word {
                     kana: String::from("こさせる"),
@@ -509,11 +521,17 @@ impl Verb {
 
         if self.is_exception() {
             if self.word.ends_with("する", None) {
-                return Ok(Word {
-                    kana: String::from("させられる"),
-                    kanji: Some(String::from("為せられる")),
-                    inflections: Vec::new(),
-                });
+                if self.word.kana == "する" {
+                    return Ok(Word {
+                        kana: String::from("させられる"),
+                        kanji: Some(String::from("為せられる")),
+                        inflections: Vec::new(),
+                    });
+                }
+
+                let mut prefix = self.word.clone().strip_end(2);
+                prefix.push_str("させられる");
+                return Ok(prefix);
             } else if self.word.ends_with("くる", Some("来る")) {
                 return Ok(Word {
                     kana: String::from("こさせられる"),
@@ -576,11 +594,17 @@ impl Verb {
     pub fn passive(&self) -> JapaneseResult<Word> {
         if self.is_exception() {
             if self.word.ends_with("する", None) {
-                return Ok(Word {
-                    kana: String::from("される"),
-                    kanji: Some(String::from("為れる")),
-                    inflections: Vec::new(),
-                });
+                if self.word.kana == "する" {
+                    return Ok(Word {
+                        kana: String::from("される"),
+                        kanji: Some(String::from("為れる")),
+                        inflections: Vec::new(),
+                    });
+                }
+
+                let mut prefix = self.word.clone().strip_end(2);
+                prefix.push_str("される");
+                return Ok(prefix);
             } else if self.word.ends_with("くる", Some("来る")) {
                 return Ok(Word {
                     kana: String::from("こられる"),
@@ -679,8 +703,14 @@ impl Verb {
 
         if self.is_exception() {
             if self.word.ends_with("する", None) {
-                let kanji = format!("為{}", to_append);
-                return Ok(Word::new(format!("し{}", to_append), Some(kanji)));
+                if self.word.kana == "する" {
+                    let kanji = format!("為{}", to_append);
+                    return Ok(Word::new(format!("し{}", to_append), Some(kanji)));
+                }
+
+                let mut prefix = self.word.clone().strip_end(2);
+                prefix.push_str(format!("し{}", to_append).as_str());
+                return Ok(prefix);
             }
 
             if self.word.ends_with("くる", Some("来る")) {
@@ -779,11 +809,17 @@ impl Verb {
                     inflections: Vec::new(),
                 });
             } else if self.word.ends_with("する", None) {
-                return Ok(Word {
-                    kanji: Some(String::from("為")),
-                    kana: String::from("し"),
-                    inflections: Vec::new(),
-                });
+                if self.word.kana == "する" {
+                    return Ok(Word {
+                        kanji: Some(String::from("為")),
+                        kana: String::from("し"),
+                        inflections: Vec::new(),
+                    });
+                }
+
+                let mut prefix = self.word.clone().strip_end(2);
+                prefix.push_str("し");
+                return Ok(prefix);
             }
         }
 
@@ -814,11 +850,17 @@ impl Verb {
                     inflections: Vec::new(),
                 });
             } else if self.word.ends_with("する", None) {
-                return Ok(Word {
-                    kanji: Some(String::from("為")),
-                    kana: String::from("し"),
-                    inflections: Vec::new(),
-                });
+                if self.word.kana == "する" {
+                    return Ok(Word {
+                        kanji: Some(String::from("為")),
+                        kana: String::from("し"),
+                        inflections: Vec::new(),
+                    });
+                }
+
+                let mut prefix = self.word.clone().strip_end(2);
+                prefix.push_str("し");
+                return Ok(prefix);
             }
         }
 
@@ -847,11 +889,17 @@ impl Verb {
 
         if self.is_exception() {
             if self.word.ends_with("する", None) {
-                return Ok(Word {
-                    kana: String::from("でき"),
-                    kanji: Some(String::from("出来")),
-                    inflections: Vec::new(),
-                });
+                if self.word.kana == "する" {
+                    return Ok(Word {
+                        kana: String::from("でき"),
+                        kanji: Some(String::from("出来")),
+                        inflections: Vec::new(),
+                    });
+                }
+
+                let mut prefix = self.word.clone().strip_end(2);
+                prefix.push_str("でき");
+                return Ok(prefix);
             }
 
             if self.word.ends_with("くる", Some("来る")) {

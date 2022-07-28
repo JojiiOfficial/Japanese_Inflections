@@ -82,6 +82,20 @@ fn exceptions() {
     ]);
 
     VerbTest::new(
+        "みみにする",
+        Some("耳にする"),
+        VerbType::Exception,
+        vec![
+            AssertedResult::new("みみにしない", Some("耳にしない")),
+            AssertedResult::new("みみにしません", Some("耳にしません")),
+        ],
+    )
+    .run([
+        |v| v.negative(WordForm::Short),
+        |v| v.negative(WordForm::Long),
+    ]);
+
+    VerbTest::new(
         "いらっしゃる",
         None,
         VerbType::Godan,
