@@ -740,6 +740,35 @@ impl Verb {
         Ok(word)
     }
 
+    /// Returns the verb in the zu form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("ならう", Some("習う")).into_verb(VerbType::Godan).unwrap();
+    /// assert_eq!(verb.zu().unwrap().kana, String::from("ならわず"));
+    /// assert_eq!(verb.zu().unwrap().kanji.unwrap(), String::from("習わず"));
+    /// ```
+    pub fn zu(&self) -> JapaneseResult<Word> {
+        if self.word.ends_with("する", None) {
+            if self.word.kana == "する" {
+                return Ok(Word {
+                    kana: String::from("せず"),
+                    kanji: Some(String::from("為ず")),
+                    inflections: vec![],
+                });
+            }
+
+            let mut word = self.word.clone().strip_end(2);
+            word.push_str("せず");
+            return Ok(word);
+        }
+        let mut word = self.negative(WordForm::Short)?.strip_end(2);
+        word.push_str("ず");
+        Ok(word)
+    }
+
     /// Returns the short negative potential form of the verb
     fn negative_potential_short(&self) -> JapaneseResult<Word> {
         let mut stem = self.stem_potential()?;
@@ -1085,7 +1114,7 @@ impl Verb {
     /// Returns the volitional stem of the verb
     fn volitional_stem(&self) -> JapaneseResult<Word> {
         if self.is_exception() {
-            if self.word.kana.ends_with("する") {
+            if self.word.ends_with("する", None) {
                 if self.word.kana == "する" {
                     return Ok(Word {
                         kana: String::from("しよ"),
@@ -1097,7 +1126,7 @@ impl Verb {
                 word.push_str("しよ");
                 return Ok(word);
             }
-            if self.word.kana.ends_with("くる") {
+            if self.word.ends_with("くる", None) {
                 return Ok(Word {
                     kana: String::from("こよ"),
                     kanji: Some("来よ".to_owned()),
