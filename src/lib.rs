@@ -639,6 +639,136 @@ impl Verb {
         Ok(negative_passive)
     }
 
+    /// Returns the verb in the tara form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("たべる", Some("食べる")).into_verb(VerbType::Ichidan).unwrap();
+    /// assert_eq!(verb.tara().unwrap().kana, String::from("たべたら"));
+    /// assert_eq!(verb.tara().unwrap().kanji.unwrap(), String::from("食べたら"));
+    /// ```
+    pub fn tara(&self) -> JapaneseResult<Word> {
+        let mut ta_form = self.past(WordForm::Short)?;
+        ta_form.push_str("ら");
+        Ok(ta_form)
+    }
+
+    /// Returns the verb in the negative tara form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("たべる", Some("食べる")).into_verb(VerbType::Ichidan).unwrap();
+    /// assert_eq!(verb.negative_tara().unwrap().kana, String::from("たべなかったら"));
+    /// assert_eq!(verb.negative_tara().unwrap().kanji.unwrap(), String::from("食べなかったら"));
+    /// ```
+    pub fn negative_tara(&self) -> JapaneseResult<Word> {
+        let mut ta_form = self.negative_past(WordForm::Short)?;
+        ta_form.push_str("ら");
+        Ok(ta_form)
+    }
+
+    /// Returns the verb in the ba form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("たべる", Some("食べる")).into_verb(VerbType::Ichidan).unwrap();
+    /// assert_eq!(verb.ba().unwrap().kana, String::from("たべれば"));
+    /// assert_eq!(verb.ba().unwrap().kanji.unwrap(), String::from("食べれば"));
+    /// ```
+    pub fn ba(&self) -> JapaneseResult<Word> {
+        let mut e_stem = self.ba_stem()?;
+        e_stem.push_str("ば");
+        Ok(e_stem)
+    }
+
+    /// Returns the verb in the negative ba form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("たべる", Some("食べる")).into_verb(VerbType::Ichidan).unwrap();
+    /// assert_eq!(verb.negative_ba().unwrap().kana, String::from("たべなければ"));
+    /// assert_eq!(verb.negative_ba().unwrap().kanji.unwrap(), String::from("食べなければ"));
+    /// ```
+    pub fn negative_ba(&self) -> JapaneseResult<Word> {
+        let mut negative = self.negative(WordForm::Short)?.strip_end(1);
+        negative.push_str("ければ");
+        Ok(negative)
+    }
+
+    /// Returns the verb in the volitional form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("ならう", Some("習う")).into_verb(VerbType::Godan).unwrap();
+    /// assert_eq!(verb.volitional(WordForm::Short).unwrap().kana, String::from("ならおう"));
+    /// assert_eq!(verb.volitional(WordForm::Short).unwrap().kanji.unwrap(), String::from("習おう"));
+    ///
+    /// assert_eq!(verb.volitional(WordForm::Long).unwrap().kana, String::from("ならいましょう"));
+    /// assert_eq!(verb.volitional(WordForm::Long).unwrap().kanji.unwrap(),
+    /// String::from("習いましょう"));
+    /// ```
+    pub fn volitional(&self, form: WordForm) -> JapaneseResult<Word> {
+        match form {
+            WordForm::Short => self.volitional_short(),
+            WordForm::Long => self.volitional_long(),
+        }
+    }
+
+    /// Returns the verb in the negative volitional form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("ならう", Some("習う")).into_verb(VerbType::Godan).unwrap();
+    /// assert_eq!(verb.negative_volitional().unwrap().kana, String::from("ならうまい"));
+    /// assert_eq!(verb.negative_volitional().unwrap().kanji.unwrap(), String::from("習うまい"));
+    /// ```
+    pub fn negative_volitional(&self) -> JapaneseResult<Word> {
+        let mut word = self.word.clone();
+        word.push_str("まい");
+        Ok(word)
+    }
+
+    /// Returns the verb in the zu form
+    ///
+    /// # Example
+    /// ```
+    /// use jp_inflections::{Word, VerbType, WordForm};
+    ///
+    /// let verb = Word::new("ならう", Some("習う")).into_verb(VerbType::Godan).unwrap();
+    /// assert_eq!(verb.zu().unwrap().kana, String::from("ならわず"));
+    /// assert_eq!(verb.zu().unwrap().kanji.unwrap(), String::from("習わず"));
+    /// ```
+    pub fn zu(&self) -> JapaneseResult<Word> {
+        if self.word.ends_with("する", None) {
+            if self.word.kana == "する" {
+                return Ok(Word {
+                    kana: String::from("せず"),
+                    kanji: Some(String::from("為ず")),
+                    inflections: vec![],
+                });
+            }
+
+            let mut word = self.word.clone().strip_end(2);
+            word.push_str("せず");
+            return Ok(word);
+        }
+        let mut word = self.negative(WordForm::Short)?.strip_end(2);
+        word.push_str("ず");
+        Ok(word)
+    }
+
     /// Returns the short negative potential form of the verb
     fn negative_potential_short(&self) -> JapaneseResult<Word> {
         let mut stem = self.stem_potential()?;
@@ -921,6 +1051,106 @@ impl Verb {
             ('る', 'れ'),
             ('う', 'え'),
             ('つ', 'て'),
+        ])
+    }
+
+    /// Returns the ba stem of the verb
+    fn ba_stem(&self) -> JapaneseResult<Word> {
+        if self.verb_type == VerbType::Ichidan {
+            return Ok(self.word.clone().strip_end(1).push_str("れ").to_owned());
+        }
+
+        if self.is_exception() {
+            if self.word.ends_with("する", None) {
+                if self.word.kana == "する" {
+                    return Ok(Word {
+                        kana: String::from("すれ"),
+                        kanji: Some(String::from("為れ")),
+                        inflections: Vec::new(),
+                    });
+                }
+
+                let mut prefix = self.word.clone().strip_end(2);
+                prefix.push_str("すれ");
+                return Ok(prefix);
+            }
+
+            if self.word.ends_with("くる", Some("来る")) {
+                return Ok(Word {
+                    kana: String::from("くれ"),
+                    kanji: Some("来れ".to_owned()),
+                    inflections: Vec::new(),
+                });
+            }
+        }
+
+        self.mapped_stem(&[
+            ('す', 'せ'),
+            ('く', 'け'),
+            ('ぐ', 'げ'),
+            ('む', 'め'),
+            ('ぶ', 'べ'),
+            ('ぬ', 'ね'),
+            ('る', 'れ'),
+            ('う', 'え'),
+            ('つ', 'て'),
+        ])
+    }
+
+    /// Returns the word in the short volitional form
+    fn volitional_short(&self) -> JapaneseResult<Word> {
+        let mut stem = self.volitional_stem()?;
+        stem.push_str("う");
+        Ok(stem)
+    }
+
+    /// Returns the word in the long volitional form
+    fn volitional_long(&self) -> JapaneseResult<Word> {
+        let mut stem = self.dictionary(WordForm::Long)?.strip_end(1);
+        stem.push_str("しょう");
+        Ok(stem)
+    }
+
+    /// Returns the volitional stem of the verb
+    fn volitional_stem(&self) -> JapaneseResult<Word> {
+        if self.is_exception() {
+            if self.word.ends_with("する", None) {
+                if self.word.kana == "する" {
+                    return Ok(Word {
+                        kana: String::from("しよ"),
+                        kanji: Some("為よ".to_owned()),
+                        inflections: Vec::new(),
+                    });
+                }
+                let mut word = self.word.clone().strip_end(2);
+                word.push_str("しよ");
+                return Ok(word);
+            }
+            if self.word.ends_with("くる", None) {
+                return Ok(Word {
+                    kana: String::from("こよ"),
+                    kanji: Some("来よ".to_owned()),
+                    inflections: Vec::new(),
+                });
+            }
+        }
+
+        if self.verb_type == VerbType::Ichidan {
+            let mut word = self.word.clone().strip_end(1);
+            word.push_str("よ");
+            return Ok(word);
+        }
+
+        self.mapped_stem(&[
+            ('す', 'そ'),
+            ('く', 'こ'),
+            ('ぐ', 'ご'),
+            ('む', 'も'),
+            ('ぶ', 'ぼ'),
+            ('ぬ', 'の'),
+            ('る', 'ろ'),
+            ('う', 'お'),
+            ('つ', 'と'),
         ])
     }
 
