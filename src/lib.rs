@@ -57,6 +57,16 @@ impl Word {
         }
     }
 
+    #[inline]
+    pub fn set_kana(&mut self, kana: String) {
+        self.kana = kana;
+    }
+
+    #[inline]
+    pub fn set_kanji(&mut self, kanji: String) {
+        self.kanji = Some(kanji);
+    }
+
     /// Returns `true` if the [`Word`] is a verb
     ///
     /// # Example
