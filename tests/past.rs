@@ -65,4 +65,26 @@ fn exceptions() {
         ],
     )
     .run([|v| v.past(WordForm::Short), |v| v.past(WordForm::Long)]);
+
+    VerbTest::new(
+        "みみにする",
+        Some("耳にする"),
+        VerbType::Exception,
+        vec![
+            AssertedResult::new("みみにした", Some("耳にした")),
+            AssertedResult::new("みみにしました", Some("耳にしました")),
+        ],
+    )
+    .run([|v| v.past(WordForm::Short), |v| v.past(WordForm::Long)]);
+
+    VerbTest::new(
+        "いらっしゃる",
+        None,
+        VerbType::Exception,
+        vec![
+            AssertedResult::new("いらっしゃった", None),
+            AssertedResult::new("いらっしゃいました", None),
+        ],
+    )
+    .run([|v| v.past(WordForm::Short), |v| v.past(WordForm::Long)]);
 }

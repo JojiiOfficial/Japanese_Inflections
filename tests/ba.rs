@@ -9,9 +9,9 @@ fn ichidan() {
         "たべる",
         Some("食べる"),
         VerbType::Ichidan,
-        vec![AssertedResult::new("たべられない", Some("食べられない"))],
+        vec![AssertedResult::new("たべれば", Some("食べれば"))],
     )
-    .run([|v| v.negative_passive()]);
+    .run([|v| v.ba()]);
 }
 
 #[test]
@@ -20,9 +20,17 @@ fn godan() {
         "まもる",
         Some("守る"),
         VerbType::Godan,
-        vec![AssertedResult::new("まもられない", Some("守られない"))],
+        vec![AssertedResult::new("まもれば", Some("守れば"))],
     )
-    .run([|v| v.negative_passive()]);
+    .run([|v| v.ba()]);
+
+    VerbTest::new(
+        "いく",
+        Some("行く"),
+        VerbType::Exception,
+        vec![AssertedResult::new("いけば", Some("行けば"))],
+    )
+    .run([|v| v.ba()]);
 }
 
 #[test]
@@ -31,23 +39,23 @@ fn exceptions() {
         "くる",
         Some("来る"),
         VerbType::Exception,
-        vec![AssertedResult::new("こられない", Some("来られない"))],
+        vec![AssertedResult::new("くれば", Some("来れば"))],
     )
-    .run([|v| v.negative_passive()]);
+    .run([|v| v.ba()]);
 
     VerbTest::new(
         "する",
         None,
         VerbType::Exception,
-        vec![AssertedResult::new("されない", None)],
+        vec![AssertedResult::new("すれば", None)],
     )
-    .run([|v| v.negative_passive()]);
+    .run([|v| v.ba()]);
 
     VerbTest::new(
         "みみにする",
         Some("耳にする"),
         VerbType::Exception,
-        vec![AssertedResult::new("みみにされない", Some("耳にされない"))],
+        vec![AssertedResult::new("みみにすれば", Some("耳にすれば"))],
     )
-    .run([|v| v.negative_passive()]);
+    .run([|v| v.ba()]);
 }

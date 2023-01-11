@@ -66,4 +66,18 @@ fn exceptions() {
         |v| v.potential(WordForm::Short),
         |v| v.potential(WordForm::Long),
     ]);
+
+    VerbTest::new(
+        "みみにする",
+        Some("耳にする"),
+        VerbType::Exception,
+        vec![
+            AssertedResult::new("みみにできる", Some("耳にできる")),
+            AssertedResult::new("みみにできます", Some("耳にできます")),
+        ],
+    )
+    .run([
+        |v| v.potential(WordForm::Short),
+        |v| v.potential(WordForm::Long),
+    ]);
 }

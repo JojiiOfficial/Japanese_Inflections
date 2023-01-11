@@ -78,12 +78,29 @@ fn exceptions() {
     )
     .run([|v| v.te_form()]);
 
+    VerbTest::new(
+        "みみにする",
+        Some("耳にする"),
+        VerbType::Exception,
+        vec![AssertedResult::new("みみにして", Some("耳にして"))],
+    )
+    .run([|v| v.te_form()]);
+
     // 来る
     VerbTest::new(
         "くる",
         Some("来る"),
         VerbType::Exception,
         vec![AssertedResult::new("きて", Some("来て"))],
+    )
+    .run([|v| v.te_form()]);
+
+    // いらっしゃる
+    VerbTest::new(
+        "いらっしゃる",
+        None,
+        VerbType::Godan,
+        vec![AssertedResult::new("いらして", None)],
     )
     .run([|v| v.te_form()]);
 }
