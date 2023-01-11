@@ -63,8 +63,8 @@ impl Word {
     }
 
     #[inline]
-    pub fn set_kanji(&mut self, kanji: String) {
-        self.kanji = Some(kanji);
+    pub fn set_kanji(&mut self, kanji: Option<String>) {
+        self.kanji = kanji;
     }
 
     /// Returns `true` if the [`Word`] is a verb
@@ -1205,5 +1205,9 @@ impl Verb {
             "なさる" => true,
             _ => false,
         }
+    }
+
+    pub fn word_mut(&mut self) -> &mut Word {
+        &mut self.word
     }
 }
