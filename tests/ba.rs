@@ -1,6 +1,6 @@
 mod verb_test;
 
-use jp_inflections::{self, VerbType};
+use jp_inflections::{self, verb::VerbType};
 use verb_test::{AssertedResult, VerbTest};
 
 #[test]

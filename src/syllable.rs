@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{fmt::Display, ops::Deref};
 
 use crate::{alphabet, umlaut::Umlaut};
 
@@ -136,5 +136,14 @@ impl Syllable {
     /// Returns true if the syllable is a valid (hiragana) character
     pub fn is_valid(&self) -> bool {
         self.get_info().is_none()
+    }
+}
+
+impl Deref for Syllable {
+    type Target = char;
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
