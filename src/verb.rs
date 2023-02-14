@@ -997,6 +997,18 @@ impl Verb {
         ])
     }
 
+    pub fn desiderative(&self) -> JapaneseResult<Word> {
+        let mut stem = self.stem_long()?;
+        stem.push_str("たい");
+        Ok(stem)
+    }
+
+    pub fn negative_desiderative(&self) -> JapaneseResult<Word> {
+        let mut stem = self.stem_long()?;
+        stem.push_str("たくない");
+        Ok(stem)
+    }
+
     /// Returns the stem of a word using [`mappings`]
     fn mapped_stem(&self, mappings: &[(char, char)]) -> JapaneseResult<Word> {
         let word = &self.word.kana;
