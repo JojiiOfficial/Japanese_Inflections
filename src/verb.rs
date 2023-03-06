@@ -301,7 +301,7 @@ impl Verb {
     pub fn imperative_negative(&self) -> JapaneseResult<Word> {
         let mut stripped = self.word.clone();
         stripped.push_str("な");
-        return Ok(stripped);
+        Ok(stripped)
     }
 
     /// Returns the verb in the causative form
@@ -337,7 +337,7 @@ impl Verb {
             }
 
             if let Some(kuru) =
-                SpecialKuru::format_verb(&self, Inflection::Causative, WordForm::Long)
+                SpecialKuru::format_verb(self, Inflection::Causative, WordForm::Long)
             {
                 return Ok(kuru);
             }
@@ -383,7 +383,7 @@ impl Verb {
             }
 
             if let Some(kuru) =
-                SpecialKuru::format_verb(&self, Inflection::CausativePassive, WordForm::Long)
+                SpecialKuru::format_verb(self, Inflection::CausativePassive, WordForm::Long)
             {
                 return Ok(kuru);
             }
@@ -455,7 +455,7 @@ impl Verb {
                 return Ok(prefix);
             }
 
-            if let Some(kuru) = SpecialKuru::format_verb(&self, Inflection::Passive, WordForm::Long)
+            if let Some(kuru) = SpecialKuru::format_verb(self, Inflection::Passive, WordForm::Long)
             {
                 return Ok(kuru);
             }
@@ -690,8 +690,7 @@ impl Verb {
                 return Ok(prefix);
             }
 
-            if let Some(mut kuru) = SpecialKuru::format_verb(&self, Inflection::Te, WordForm::Long)
-            {
+            if let Some(mut kuru) = SpecialKuru::format_verb(self, Inflection::Te, WordForm::Long) {
                 // ugly hack to replace the て with `to_append` but whatever
                 kuru.kana.pop();
                 kuru.kana.push(*to_append);
@@ -1019,7 +1018,7 @@ impl Verb {
             return Ok(self.word.clone().strip_end(2).push('し').to_owned());
         }
 
-        Ok(self.map_ending(mappings)?)
+        self.map_ending(mappings)
     }
 
     /// Maps the last `char` of the verb using [`mappings`]
@@ -1044,14 +1043,10 @@ impl Verb {
 
     /// Returns `true` if the verb is one of the 5 polite verbs
     fn is_polite(&self) -> bool {
-        match self.word.kana.as_str() {
-            "いらっしゃる" => true,
-            "おっしゃる" => true,
-            "くださる" => true,
-            "ござる" => true,
-            "なさる" => true,
-            _ => false,
-        }
+        matches!(
+            self.word.kana.as_str(),
+            "いらっしゃる" | "おっしゃる" | "くださる" | "ござる" | "なさる"
+        )
     }
 
     #[inline]

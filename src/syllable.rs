@@ -41,9 +41,9 @@ impl From<char> for Syllable {
     }
 }
 
-impl Into<char> for Syllable {
-    fn into(self) -> char {
-        self.get_char()
+impl From<Syllable> for char {
+    fn from(val: Syllable) -> Self {
+        val.get_char()
     }
 }
 
