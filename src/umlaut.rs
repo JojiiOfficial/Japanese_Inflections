@@ -7,9 +7,9 @@ pub enum Umlaut {
     U,
 }
 
-impl Into<Umlaut> for char {
-    fn into(self) -> Umlaut {
-        match self {
+impl From<char> for Umlaut {
+    fn from(value: char) -> Self {
+        match value {
             'a' => Umlaut::A,
             'e' => Umlaut::E,
             'i' => Umlaut::I,

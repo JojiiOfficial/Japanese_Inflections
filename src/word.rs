@@ -212,6 +212,6 @@ impl Word {
 
     /// Retuns a `Error::NotAVerb` error if self is not a verb
     pub(crate) fn require_verb(&self) -> JapaneseResult<()> {
-        Ok(self.is_verb().then(|| ()).ok_or(Error::NotAVerb)?)
+        self.is_verb().then_some(()).ok_or(Error::NotAVerb)
     }
 }
