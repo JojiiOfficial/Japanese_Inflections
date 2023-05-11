@@ -670,7 +670,7 @@ impl Verb {
     }
 
     /// Returns a word conjungated like て from but with a custom character instead of て
-    fn te_rule(&self, to_append: Syllable) -> JapaneseResult<Word> {
+    pub fn te_rule(&self, to_append: Syllable) -> JapaneseResult<Word> {
         if self.word.ends_with("いく", Some("行く")) {
             return Ok(Word::new(
                 format!("いっ{}", to_append),

@@ -169,12 +169,12 @@ impl Word {
     }
 
     /// Returns the last syllable of the word
-    pub(crate) fn ending_syllable(&self) -> Option<Syllable> {
+    pub fn ending_syllable(&self) -> Option<Syllable> {
         self.kana.chars().last().map(Syllable::from)
     }
 
     /// Remove last n characters from [`self`]
-    pub(crate) fn strip_end(self, n: usize) -> Word {
+    pub fn strip_end(self, n: usize) -> Word {
         let kana_bytes: usize = self.kana.chars().rev().take(n).map(|i| i.len_utf8()).sum();
         let kanji_bytes: usize = self
             .kanji
@@ -193,7 +193,7 @@ impl Word {
     }
 
     /// Pushes a &str onto the end of the kana and kanji word
-    pub(crate) fn push_str(&mut self, s: &str) -> &mut Word {
+    pub fn push_str(&mut self, s: &str) -> &mut Word {
         self.kana.push_str(s);
         if let Some(ref mut kanji) = self.kanji {
             kanji.push_str(s);
@@ -202,7 +202,7 @@ impl Word {
     }
 
     /// Pushes a char onto the end of the kana and kanji word
-    pub(crate) fn push(&mut self, c: char) -> &mut Word {
+    pub fn push(&mut self, c: char) -> &mut Word {
         self.kana.push(c);
         if let Some(ref mut kanji) = self.kanji {
             kanji.push(c);
@@ -211,7 +211,7 @@ impl Word {
     }
 
     /// Retuns a `Error::NotAVerb` error if self is not a verb
-    pub(crate) fn require_verb(&self) -> JapaneseResult<()> {
+    pub fn require_verb(&self) -> JapaneseResult<()> {
         self.is_verb().then_some(()).ok_or(Error::NotAVerb)
     }
 }
